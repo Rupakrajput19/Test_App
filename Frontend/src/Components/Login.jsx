@@ -5,10 +5,12 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { Link } from "react-router-dom";
-// import { useNavigate } from "react-router-dom";
+import axios from 'axios';
+import swal from 'sweetalert';
+import { useNavigate } from "react-router-dom";
 
 function Login() {
-  // const Navigator = useNavigate();
+  const Navigator = useNavigate();
   const intitial = {
     email: "",
     password: "",
@@ -22,39 +24,62 @@ function Login() {
     setDetails(tempDetails);
   };
 
+  const Errors_checking = (InputValues) => {
+    let errors = {};
+
+    let emailregex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    let trueEmail = InputValues.email;
+    let validEmailregex = trueEmail.match(emailregex);
+
+    if (InputValues.email === "") {
+      errors.email = "Please Enter Your Email!";
+    } else if (!validEmailregex) {
+      errors.email = "Enter Valid Email!";
+    }
+
+    let passwordregex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@#.$!^%*?&]{8,20}$/;
+    let truePassword = InputValues.password;
+    let validPassregex = truePassword.match(passwordregex);
+
+    if (InputValues.password === "") {
+      errors.password = "Please Enter Your Password!";
+    } else if (!validPassregex) {
+      errors.password =
+      "Password must be in 8 - 20 character and containt atleast 1 Number, 1 Uppercase , 1 Lowercase & 1 Special character!";
+    }
+    setErrors(errors)
+    return Object.entries(errors).length > 0;
+  };
+
   const onSubmitClick = (events) => {
+    const { email, password } = details;
     events.preventDefault();
     console.log("details:--", details);
-
-    const Errors_checking = (InputValues) => {
-      let errors = {};
-
-      let emailregex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-      let trueEmail = InputValues.email;
-      let validEmailregex = trueEmail.match(emailregex);
-
-      if (InputValues.email === "") {
-        errors.email = "Please Enter Your Email!";
-      } else if (!validEmailregex) {
-        errors.email = "Enter Valid Email!";
-      }
-
-      let passwordregex =
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@#.$!^%*?&]{8,20}$/;
-      let truePassword = InputValues.password;
-      let validPassregex = truePassword.match(passwordregex);
-
-      if (InputValues.password === "") {
-        errors.password = "Please Enter Your Password!";
-      } else if (!validPassregex) {
-        errors.password =
-        "Password must be in 8 - 20 character and containt atleast 1 Number, 1 Uppercase , 1 Lowercase & 1 Special character!";
-      }
-      setErrors(errors);
-    };
-    
-    Errors_checking(details);
+if(!Errors_checking(details)){
+ 
+  axios.post("http://localhost:2022/loginUser", { email, password })
+  .then((result) => {
+    console.log("Response from backend -> ", result);
+    if (result.data && result.data.success) {
+      Navigator("/home", { replace: true });
+    } else {
+      setDetails(intitial);
+      return swal({
+        title: "Login Failed!",
+        text: `"Invalid login credentials..." \n 'If you are new user please first registered your self.'`,
+        icon: "error",
+        button: "Try Again",
+      });
+    }
+  })
+  .catch((error) => {
+    alert(`Something went wrong ${error}`);
+  });
+}
   };
+
+
 
   return (
     <>
@@ -82,6 +107,7 @@ function Login() {
             label="Email ID"
             variant="outlined"
             className="input_field"
+            value={details.email}
             required
             onChange={InputChange}
           />
@@ -93,6 +119,7 @@ function Login() {
             label="Password"
             variant="outlined"
             className="input_field"
+            value={details.password}
             required
             onChange={InputChange}
           />

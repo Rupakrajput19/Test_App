@@ -94,7 +94,7 @@ function Login() {
   }
 };
     
-  return (
+  return (                                                                                                                                                                          
     <>
       <div className="home_style">
         <img
@@ -157,10 +157,7 @@ function Login() {
             onChange={InputChange}
           />
           {errors.password ? (
-            <p className="clear_error">{errors.password}</p>
-          ) : (
-            ""
-          )}
+            <p className="clear_error">{errors.password}</p>) : ("")}
           <TextField
             id="confirm_password"
             type="password"
@@ -172,10 +169,7 @@ function Login() {
             onChange={InputChange}
           />
           {errors.confirm_password ? (
-            <p className="clear_error">{errors.confirm_password}</p>
-          ) : (
-            ""
-          )}
+            <p className="clear_error">{errors.confirm_password}</p>) : ("")}
           <Button variant="contained" id="submit_btn" onClick={onSubmitClick}>
             Submit
           </Button>
